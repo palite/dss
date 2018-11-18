@@ -116,7 +116,7 @@ exports.verifEmail = function (req,res) {
 exports.logIn = function (req,res) {
     User.findOneAndUpdate({identitas: req.body.userId,password:hash(req.body.password)}, {},{new:true}, function(err,doc){
         if (err){
-            console.log("Login gagal");
+            console.log("Login gagal ");
         }
         console.log(doc);
         if (doc != null){
