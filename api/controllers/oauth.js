@@ -5,6 +5,7 @@ const VerifEmail = mongoose.model('VerifEmail');
 
 const nodemailer = require('nodemailer');
 const hash = require('object-hash');
+const cryptoRandomString = require('crypto-random-string');
 
 var smtpTransport = nodemailer.createTransport({
     name: 'smtp2go',
@@ -18,7 +19,7 @@ var smtpTransport = nodemailer.createTransport({
 })
 
 exports.signUp = function (req,res) {
-    console.log(process.env.MAILPASS);
+    
     User.find({identitas: req.body.userId})
         .then((doc) => {
             if (doc[0] != null) {
@@ -29,12 +30,14 @@ exports.signUp = function (req,res) {
             }
             else {
                 var rand = Math.floor((Math.random()*8999)+1000);
-                var pesan = "Hai, \n"" \n Masukkan kode "+rand;
+                var secret = cryptoRandomString(15);
+                var link = "http://139.59.243.123:3000/verif/"+secret
+                
                var mailOptions = {
                     from: 'Kukuh_kr <kukuhkr@email.com>',
                     to : req.body.userId,
-                    subject : "Masukkan kode berikut ke hpmu nak",
-                    html : "Hai, "+req.body.name+ " <br> Masukkan kode "+rand+" ke hpmu nak."
+                    subject : "JAngan dibales yaaa <3",
+                    html : "Klik link ini untuk verifikasi  " +link
                 }
                 console.log(mailOptions);
                 smtpTransport.sendMail(mailOptions, function(error,info){
@@ -46,18 +49,25 @@ exports.signUp = function (req,res) {
                         // Preview only available when sending through an Ethereal account
                         //console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
                         console.log(info);
-                        var data = {
-                            "exist" : false
-                        }
-                        res.send(data);
+                        
+                        
+                        
 
                     }
                 });
-                VerifEmail.findOneAndUpdate({identitas : req.body.userId,password : hash(req.body.password)},{$set:{kode : rand}},{upsert : true, new : true}, function (err,file) {
+                VerifEmail.findOneAndUpdate({identitas : req.body.userId,password : hash(req.body.password)},{$set:{kode : secret}},{upsert : true, new : true}, function (err,file) {
                     if (err) {
                         console.log("update eror");
+                        console.log(err);
+                    } else {
+                        console.log(file);
+                        var data = {
+                            "exist" : false,
+                            "updated": true
+                        }
+                        res.send(data);
                     }
-                    console.log(file);
+                    
 
                 });
             }
@@ -126,4 +136,40 @@ exports.logIn = function (req,res) {
         }
         
     });
+}
+exports.confirm = function (req,res) {
+       var token =req.params.code;
+       VerifEmail.findOneAndRemove({kode: token}, function (err,doc){
+        if (err) {
+            console.log("verif gagal");
+        }
+        else if (doc != null) {
+             User.findOneAndUpdate({identitas: doc.identitas,password: doc.password}, {}, function (err,info){
+                if (err) {
+                    console.log("eror,eror,eror,eror");
+                } else if (info == null) {
+                    var dataId = new User({
+                        "identitas" : doc.identitas,
+                        "password" : doc.password
+                    });
+                    dataId.save();
+                    console.log(info);
+                } else {
+    
+                }
+                
+            }); 
+            var data = {
+                "iscodetrue" : true
+            }
+            res.send(data);
+        } else {
+            var data = {
+                "iscodetrue" : false
+            }
+            res.send(data);
+        }
+        
+    });
+
 }

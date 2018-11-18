@@ -1,4 +1,5 @@
 'use strict';
+
 module.exports = function(app) {
   var control = require('../controllers/oauth.js');
 
@@ -8,7 +9,10 @@ module.exports = function(app) {
     app.route('/login')
     .post(control.logIn);
     app.route('/verif')
-    .post(control.verifEmail); }
+    .post(control.verifEmail); 
+  app.route('/verif/:code')
+    .get(control.confirm);
+  }
 
 
   

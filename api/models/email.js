@@ -10,7 +10,7 @@ const SkemaVerifEmail = new mongoose.Schema({
         trim: true,
     },
     kode: {
-        type: Number,
+        type: String,
         trim: true,
     }
 });
