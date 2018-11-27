@@ -114,7 +114,8 @@ exports.verifEmail = function (req,res) {
 }
 
 exports.logIn = function (req,res) {
-    User.findOneAndUpdate({identitas: req.body.userId,password:hash(req.body.password)}, {},{new:true}, function(err,doc){
+    var sesi = cryptoRandomString(14);
+    User.findOneAndUpdate({identitas: req.body.userId,password:hash(req.body.password)}, {session:sesi},{new:true}, function(err,doc){
         if (err){
             console.log("Login gagal ");
         }
@@ -123,9 +124,12 @@ exports.logIn = function (req,res) {
             User.find({identitas: req.body.userId}).distinct('nama')
             .then((nama) => {
                 var data = {
-                    "isloggedin" : true
+                    "isloggedin" : true,
+                    "sesi" : sesi
                 }    
                 res.send(data);
+                
+
             })
         }
         else {
@@ -150,7 +154,8 @@ exports.confirm = function (req,res) {
                 } else if (info == null) {
                     var dataId = new User({
                         "identitas" : doc.identitas,
-                        "password" : doc.password
+                        "password" : doc.password,
+                        "session" : null
                     });
                     dataId.save();
                     console.log(info);
@@ -171,5 +176,24 @@ exports.confirm = function (req,res) {
         }
         
     });
+
+}
+exports.logout = function (req,res) {
+    User.findOneAndUpdate ({session:req.body.session},{session: 0},function (err,info){
+        if (err) {
+            console.log("logout gagal");
+        } if (info != null) {
+            var data = {
+                "isloggedout" : true
+            }
+            res.send(data);
+        } else {
+            var data = {
+                "isloggedout" : false
+            }
+            res.send(data);
+        }
+    }
+    );
 
 }

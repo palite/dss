@@ -8,6 +8,10 @@ const SkemaUser = new mongoose.Schema({
     password: {
         type: String,
         trim: true,
+    },
+    session: {
+        type: String,
+        trim : true
     }
 });
 

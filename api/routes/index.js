@@ -12,7 +12,10 @@ module.exports = function(app) {
     .post(control.verifEmail); 
   app.route('/verif/:code')
     .get(control.confirm);
+    app.route('/logout')
+    .post(control.logout);
   }
+  
 
 
   
