@@ -1,19 +1,12 @@
 'use strict';
 
 module.exports = function(app) {
-  var control = require('../controllers/oauth.js');
+  var control = require('../controllers/control.js');
 
   // todoList Routes
-  app.route('/signup')
-    .post(control.signUp);
-    app.route('/login')
-    .post(control.logIn);
-    app.route('/verif')
-    .post(control.verifEmail); 
-  app.route('/verif/:code')
-    .get(control.confirm);
-    app.route('/logout')
-    .post(control.logout);
+  app.route('/tes')
+    .get(control.tes);
+   
   }
   
 
